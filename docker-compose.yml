@@ -1,0 +1,32 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq-mqtt-example
+    restart: unless-stopped
+    ports:
+      # all ports = default+1 to avoid conflict
+      - "1884:1883"
+      - "5673:5672"
+      - "15673:15672"
+
+    command: "/bin/bash -c \"rabbitmq-plugins enable rabbitmq_mqtt; rabbitmq-server\""
+    volumes:
+      - ./config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./config/definitions.json:/etc/rabbitmq/definitions.json
+      - rabbitmq-mqtt_data:/var/lib/rmq/data
+
+    # environment:
+      # MQTT subscriber able to connect via this cred
+      # - RABBITMQ_DEFAULT_USER=admin
+      # - RABBITMQ_DEFAULT_PASS=Adm1n
+
+    networks:
+      - custom_rabbitmq_mqtt_network
+
+volumes:
+  rabbitmq-mqtt_data:
+
+networks:
+  custom_rabbitmq_mqtt_network:
+    driver: bridge
